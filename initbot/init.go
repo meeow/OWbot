@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"../config"
 	"../messagehandler"
 	"github.com/bwmarrin/discordgo"
 )
@@ -32,7 +33,7 @@ func StartBot() *discordgo.Session {
 	discord.AddHandler(messagehandler.CommandHandler)
 
 	discord.AddHandler(func(discord *discordgo.Session, ready *discordgo.Ready) {
-		err = discord.UpdateStatus(0, "UwU...!")
+		err = discord.UpdateStatus(0, config.Cfg.BotStatus)
 		servers := discord.State.Guilds
 		fmt.Println("OWbot has started on servers:")
 		for _, server := range servers {
