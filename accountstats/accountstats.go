@@ -21,13 +21,16 @@ const (
 )
 
 func isValidBtag(btag string) bool {
+	fmt.Println("Testing ", btag)
+
 	switch {
-	case !strings.Contains(btag, "#") || !strings.Contains(btag, "-"):
+	case !(strings.Contains(btag, "#") || strings.Contains(btag, "-")):
 		return false
 	case len(btag) < minBtagLength:
 		return false
 	}
 
+	fmt.Println(btag, "is valid!")
 	return true
 }
 
@@ -47,6 +50,7 @@ func urlFormatBtag(btag string) string {
 }
 
 func getRawAccountStats(btag string, stats chan string) {
+	btag = urlFormatBtag(btag)
 	url := owAPIprefix + btag + owAPIsuffix
 	fmt.Printf("HTML code of %s ...\n", url)
 	resp, err := http.Get(url)
@@ -68,6 +72,7 @@ func getRawAccountStats(btag string, stats chan string) {
 // ConcurrentGetRawAccountStats takes an array of btag strings and
 // returns an array of JSON account info but without guaranteeing same order.
 func ConcurrentGetRawAccountStats(btags []string) []string {
+	btags = filterInvalidBtags(btags)
 
 	stats := make(chan string)
 	//numBtags := len(btags)
@@ -91,6 +96,11 @@ func ConcurrentGetRawAccountStats(btags []string) []string {
 // GetEmbeddedStats takes a string arr of RawAccountStats strings and
 // returns them in a formatted embed message
 func GetEmbeddedStats(btags []string) *discordgo.MessageEmbed {
+
+	//debug
+	stats := ConcurrentGetRawAccountStats(btags)
+	fmt.Println(stats)
+
 	emb := embed.NewEmbed().
 		SetTitle("Test").
 		MessageEmbed

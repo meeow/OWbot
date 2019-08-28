@@ -9,27 +9,29 @@ import (
 
 var (
 	configFile = "./config.toml"
-	Cfg        = ReadConfig()
+	// Cfg contains all fields from the configFile.
+	Cfg = ReadConfig()
 )
 
-type Config struct {
-	BotPrefix string
-	BotStatus string
+type config struct {
+	BotPrefix     string
+	BotStatus     string
+	TokenFilePath string
 }
 
 // ReadConfig reads info from config file
-func ReadConfig() Config {
+func ReadConfig() config {
 	_, err := os.Stat(configFile)
 	if err != nil {
 		log.Fatal("Config file is missing: ", configFile)
 	}
 
-	var config Config
+	var config config
 	if _, err := toml.DecodeFile(configFile, &config); err != nil {
 		log.Fatal(err)
 	}
 
-	log.Print("Loaded configs: ", config)
+	log.Print("Loaded from config file: ", config)
 
 	return config
 }

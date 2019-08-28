@@ -10,12 +10,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var (
-	tokenFile = "../bot_token"
-)
+var ()
 
 func getToken(path string) string {
-	token, err := ioutil.ReadFile(tokenFile)
+	token, err := ioutil.ReadFile(config.Cfg.TokenFilePath)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -27,7 +25,7 @@ func getToken(path string) string {
 // StartBot gets the bot token and uses it to start a discord session.
 // It also adds desired handlers.
 func StartBot() *discordgo.Session {
-	discord, err := discordgo.New("Bot " + getToken(tokenFile))
+	discord, err := discordgo.New("Bot " + getToken(config.Cfg.TokenFilePath))
 	//user, err := discord.User("@me")
 
 	discord.AddHandler(messagehandler.CommandHandler)
