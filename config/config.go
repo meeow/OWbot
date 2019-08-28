@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	configFile = "./config.toml"
+	configFilePath = "./config.toml"
 	// Cfg contains all fields from the configFile.
 	Cfg = ReadConfig()
 )
@@ -21,13 +21,13 @@ type config struct {
 
 // ReadConfig reads info from config file
 func ReadConfig() config {
-	_, err := os.Stat(configFile)
+	_, err := os.Stat(configFilePath)
 	if err != nil {
-		log.Fatal("Config file is missing: ", configFile)
+		log.Fatal("Config file is missing: ", configFilePath)
 	}
 
 	var config config
-	if _, err := toml.DecodeFile(configFile, &config); err != nil {
+	if _, err := toml.DecodeFile(configFilePath, &config); err != nil {
 		log.Fatal(err)
 	}
 

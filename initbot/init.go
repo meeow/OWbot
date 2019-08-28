@@ -26,7 +26,6 @@ func getToken(path string) string {
 // It also adds desired handlers.
 func StartBot() *discordgo.Session {
 	discord, err := discordgo.New("Bot " + getToken(config.Cfg.TokenFilePath))
-	//user, err := discord.User("@me")
 
 	discord.AddHandler(messagehandler.CommandHandler)
 

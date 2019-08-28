@@ -46,9 +46,6 @@ func CommandHandler(session *discordgo.Session, message *discordgo.MessageCreate
 		session.ChannelMessageSendEmbed(channelID, emb)
 	}
 
-	//temp
-	// outputMessage = action
-
 	if outputMessage != "" {
 		session.ChannelMessageSend(channelID, outputMessage)
 	}

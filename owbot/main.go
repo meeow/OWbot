@@ -7,8 +7,6 @@ import (
 var ()
 
 func main() {
-	//discord, user := initbot.StartBot()
-
 	discord := initbot.StartBot()
 
 	defer discord.Close()
