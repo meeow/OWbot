@@ -1,6 +1,7 @@
 package accountstats
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -20,8 +21,13 @@ const (
 	minBtagLength = 7
 )
 
+type formattedStats struct {
+	level   int
+	private bool
+}
+
 func isValidBtag(btag string) bool {
-	fmt.Println("Testing ", btag)
+	//fmt.Println("Testing ", btag)
 
 	switch {
 	case !(strings.Contains(btag, "#") || strings.Contains(btag, "-")):
@@ -30,7 +36,7 @@ func isValidBtag(btag string) bool {
 		return false
 	}
 
-	fmt.Println(btag, "is valid!")
+	//fmt.Println(btag, "is valid!")
 	return true
 }
 
@@ -91,6 +97,13 @@ func ConcurrentGetRawAccountStats(btags []string) []string {
 	fmt.Println(btagStats)
 	return btagStats
 
+}
+
+// Convert JSON response
+func pruneStats(stats string) formattedStats {
+	fs := formattedStats{}
+	json.Unmarshal([]byte(stats), &fs)
+	return fs
 }
 
 // GetEmbeddedStats takes a string arr of RawAccountStats strings and
