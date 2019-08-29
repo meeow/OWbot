@@ -1,12 +1,12 @@
 package accountstats
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
+	"../crunchjson"
 	"../embed"
 
 	"github.com/bwmarrin/discordgo"
@@ -14,17 +14,12 @@ import (
 
 var (
 	owAPIprefix = "https://ow-api.com/v1/stats/pc/us/"
-	owAPIsuffix = "/profile"
+	owAPIsuffix = "/complete"
 )
 
 const (
 	minBtagLength = 7
 )
-
-type formattedStats struct {
-	level   int
-	private bool
-}
 
 func isValidBtag(btag string) bool {
 	//fmt.Println("Testing ", btag)
@@ -100,10 +95,12 @@ func ConcurrentGetRawAccountStats(btags []string) []string {
 }
 
 // Convert JSON response
-func pruneStats(stats string) formattedStats {
-	fs := formattedStats{}
-	json.Unmarshal([]byte(stats), &fs)
-	return fs
+func pruneStats(stats string) map[string]interface{} {
+
+	statsMap := crunchjson.JSONtoMap(stats)
+	fmt.Println(statsMap["name"])
+
+	return statsMap
 }
 
 // GetEmbeddedStats takes a string arr of RawAccountStats strings and
@@ -112,11 +109,14 @@ func GetEmbeddedStats(btags []string) *discordgo.MessageEmbed {
 
 	//debug
 	stats := ConcurrentGetRawAccountStats(btags)
-	fmt.Println(stats)
+	prunedStats := pruneStats(stats[0])
+	fmt.Println(prunedStats)
+	firstPlayer := prunedStats
 
-	emb := embed.NewEmbed().
-		SetTitle("Test").
-		MessageEmbed
+	tempEmb := embed.NewEmbed().
+		SetTitle(fmt.Sprint(firstPlayer["name"]))
+
+	emb := tempEmb.MessageEmbed
 
 	return emb
 }

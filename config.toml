@@ -1,3 +1,4 @@
+# [ OWbot Setup Configuration ]
 BotPrefix=":3"
 BotStatus="Nyaaa UwU"
 TokenFilePath="../bot_token"
