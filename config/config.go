@@ -17,6 +17,7 @@ type config struct {
 	BotPrefix     string
 	BotStatus     string
 	TokenFilePath string
+	StatsKeys     []string
 }
 
 // ReadConfig reads info from config file

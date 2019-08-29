@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"strings"
 
+	"../config"
 	"../crunchjson"
 	"../embed"
+	"../flatten"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -53,7 +55,7 @@ func urlFormatBtag(btag string) string {
 func getRawAccountStats(btag string, stats chan string) {
 	btag = urlFormatBtag(btag)
 	url := owAPIprefix + btag + owAPIsuffix
-	fmt.Printf("HTML code of %s ...\n", url)
+	fmt.Printf("DEBUG: Fetching HTML code of %s ...\n", url)
 	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -89,34 +91,74 @@ func ConcurrentGetRawAccountStats(btags []string) []string {
 		btagStats = append(btagStats, stat)
 	}
 
-	fmt.Println(btagStats)
+	//fmt.Println(btagStats)
 	return btagStats
 
 }
 
 // Convert JSON response
 func pruneStats(stats string) map[string]interface{} {
-
 	statsMap := crunchjson.JSONtoMap(stats)
-	fmt.Println(statsMap["name"])
 
-	return statsMap
+	flat, _ := flatten.Flatten(statsMap, "", flatten.DotStyle)
+
+	return flat
 }
 
 // GetEmbeddedStats takes a string arr of RawAccountStats strings and
 // returns them in a formatted embed message
 func GetEmbeddedStats(btags []string) *discordgo.MessageEmbed {
+	fmt.Println(config.Cfg.StatsKeys[0])
 
 	//debug
 	stats := ConcurrentGetRawAccountStats(btags)
 	prunedStats := pruneStats(stats[0])
-	fmt.Println(prunedStats)
-	firstPlayer := prunedStats
+	playerInfo := prunedStats
+	//kw := "rating"
+
+	privateProfile := fmt.Sprint(playerInfo["private"])
+	thumbnailPath := fmt.Sprint(playerInfo["ratingIcon"])
+	if thumbnailPath == "" {
+		thumbnailPath = fmt.Sprint(playerInfo["icon"])
+	}
 
 	tempEmb := embed.NewEmbed().
-		SetTitle(fmt.Sprint(firstPlayer["name"]))
+		SetTitle(fmt.Sprint(playerInfo["name"])).
+		SetColor(0x00ff00).
+		SetThumbnail(thumbnailPath)
 
-	emb := tempEmb.MessageEmbed
+	if privateProfile == "true" {
+		tempEmb = tempEmb.AddField("Private Profile", ":c")
+		return tempEmb.Truncate().MessageEmbed
+	}
+
+	for _, k := range config.Cfg.StatsKeys {
+		kTemp := strings.Split(k, ">")
+		key := kTemp[0]
+		formattedFieldName := kTemp[1]
+		value := fmt.Sprint(playerInfo[key])
+
+		if len(value) > 0 {
+			tempEmb = tempEmb.AddField(formattedFieldName, value)
+		}
+	}
+
+	// for k, v := range prunedStats {
+	// 	val := string(fmt.Sprint(v))
+	// 	if len(val) < 1 || val == "<nil>" {
+	// 		val = "None"
+	// 	}
+
+	// 	//fmt.Println(k, val)
+
+	// 	if strings.Contains(k, kw) {
+	// 		tempEmb = tempEmb.AddField(k, val)
+	// 	}
+
+	// 	//tempEmb = tempEmb.AddField(k, val)
+	// }
+
+	emb := tempEmb.Truncate().MessageEmbed
 
 	return emb
 }

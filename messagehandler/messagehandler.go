@@ -39,6 +39,9 @@ func CommandHandler(session *discordgo.Session, message *discordgo.MessageCreate
 	channel, _ := session.Channel(channelID)
 	server, _ := session.Guild(message.GuildID)
 
+	// improve logging later
+	fmt.Printf("(%s > %s) %s: %+v\n", server.Name, channel.Name, message.Author, inputMessage)
+
 	switch {
 	case action == "sr":
 		btags := inputMessageFields[1:]
@@ -50,5 +53,4 @@ func CommandHandler(session *discordgo.Session, message *discordgo.MessageCreate
 		session.ChannelMessageSend(channelID, outputMessage)
 	}
 
-	fmt.Printf("(%s > %s) %s: %+v\n", server.Name, channel.Name, message.Author, inputMessage)
 }

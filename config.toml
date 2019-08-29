@@ -2,3 +2,13 @@
 BotPrefix=":3"
 BotStatus="Nyaaa UwU"
 TokenFilePath="../bot_token"
+
+# [ Stats Lookup Preferences ]
+StatsKeys=[
+    "rating>Skill Rating - Overall",
+    "ratings.0.level>Skill Rating - Tank",
+    "ratings.1.level>Skill Rating - Damage",
+    "ratings.2.level>Skill Rating - Support",
+    "competitiveStats.careerStats.allHeroes.game.gamesPlayed>Competitive Games Played",
+    "competitiveStats.careerStats.allHeroes.game.gamesLost>Competitive Games Lost"
+]
