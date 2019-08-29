@@ -90,7 +90,7 @@ func ConcurrentGetRawAccountStats(btags []string) []string {
 }
 
 // Convert JSON response
-func pruneStats(stats string) map[string]interface{} {
+func flattenStats(stats string) map[string]interface{} {
 	statsMap := crunchjson.JSONtoMap(stats)
 
 	flat, _ := flatten.Flatten(statsMap, "", flatten.DotStyle)
@@ -98,15 +98,11 @@ func pruneStats(stats string) map[string]interface{} {
 	return flat
 }
 
-// GetEmbeddedStats takes a string arr of RawAccountStats strings and
-// returns them in a formatted embed message
-func GetEmbeddedStats(btags []string) *discordgo.MessageEmbed {
-	fmt.Println(config.Cfg.StatsKeys[0])
+// GetEmbeddedStats takes a string representing stats in flattened JSON
+// and returns an embed struct
+func GetEmbeddedStats(stats string) *discordgo.MessageEmbed {
 
-	//debug
-	stats := ConcurrentGetRawAccountStats(btags)
-	prunedStats := pruneStats(stats[0])
-	playerInfo := prunedStats
+	playerInfo := flattenStats(stats)
 
 	btag := fmt.Sprint(playerInfo["name"])
 	thirdPartyStatsPath := config.Cfg.ThirdPartyStatsPrefix + urlFormatBtag(btag) + config.Cfg.ThirdPartyStatsSuffix
@@ -138,22 +134,21 @@ func GetEmbeddedStats(btags []string) *discordgo.MessageEmbed {
 		}
 	}
 
-	// for k, v := range prunedStats {
-	// 	val := string(fmt.Sprint(v))
-	// 	if len(val) < 1 || val == "<nil>" {
-	// 		val = "None"
-	// 	}
-
-	// 	//fmt.Println(k, val)
-
-	// 	if strings.Contains(k, kw) {
-	// 		tempEmb = tempEmb.AddField(k, val)
-	// 	}
-
-	// 	//tempEmb = tempEmb.AddField(k, val)
-	// }
-
 	emb := tempEmb.Truncate().MessageEmbed
 
 	return emb
+}
+
+// GetAllEmbeddedStats takes a string arr of RawAccountStats strings and
+// returns an array of embeds
+func GetAllEmbeddedStats(btags []string) []*discordgo.MessageEmbed {
+	var embeds []*discordgo.MessageEmbed
+	stats := ConcurrentGetRawAccountStats(btags)
+
+	for _, stat := range stats {
+		embeds = append(embeds, GetEmbeddedStats(stat))
+	}
+
+	return embeds
+
 }

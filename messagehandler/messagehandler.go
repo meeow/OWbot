@@ -10,7 +10,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var ()
+const (
+	minimumFields = 2
+)
 
 // Validation for well formed bot command
 func isValidCommand(message *discordgo.MessageCreate) bool {
@@ -18,7 +20,9 @@ func isValidCommand(message *discordgo.MessageCreate) bool {
 	inputMessage := message.Content
 	inputMessageFields := strings.Fields(inputMessage)
 
-	if author.Bot || len(inputMessageFields) < 2 || !strings.HasPrefix(inputMessage, config.Cfg.BotPrefix) {
+	if author.Bot ||
+		!strings.HasPrefix(inputMessage, config.Cfg.BotPrefix) ||
+		len(inputMessageFields) < minimumFields {
 		return false
 	}
 	return true
@@ -27,13 +31,14 @@ func isValidCommand(message *discordgo.MessageCreate) bool {
 // CommandHandler takes a discord message and decides what to do with it
 func CommandHandler(session *discordgo.Session, message *discordgo.MessageCreate) {
 	if isValidCommand(message) == false {
-		return
+		return // The message does not invoke a bot action
 	}
 
-	var outputMessage string
+	outputMessage := ""
+	var outputEmbeds []*discordgo.MessageEmbed
 	inputMessage := message.Content[len(config.Cfg.BotPrefix):]
 	inputMessageFields := strings.Fields(inputMessage)
-	action := inputMessageFields[0]
+	action := strings.ToLower(inputMessageFields[0])
 
 	channelID := message.ChannelID
 	channel, _ := session.Channel(channelID)
@@ -45,12 +50,15 @@ func CommandHandler(session *discordgo.Session, message *discordgo.MessageCreate
 	switch {
 	case action == "sr":
 		btags := inputMessageFields[1:]
-		emb := accountstats.GetEmbeddedStats(btags)
-		session.ChannelMessageSendEmbed(channelID, emb)
+		outputEmbeds = append(outputEmbeds, accountstats.GetAllEmbeddedStats(btags)...)
 	}
 
 	if outputMessage != "" {
 		session.ChannelMessageSend(channelID, outputMessage)
+	}
+
+	for _, emb := range outputEmbeds {
+		go session.ChannelMessageSendEmbed(channelID, emb)
 	}
 
 }

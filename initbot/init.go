@@ -28,18 +28,19 @@ func StartBot() *discordgo.Session {
 	discord, err := discordgo.New("Bot " + getToken(config.Cfg.TokenFilePath))
 
 	discord.AddHandler(messagehandler.CommandHandler)
-
 	discord.AddHandler(func(discord *discordgo.Session, ready *discordgo.Ready) {
 		err = discord.UpdateStatus(0, config.Cfg.BotStatus)
 		servers := discord.State.Guilds
 		fmt.Println("OWbot has started on servers:")
 		for _, server := range servers {
-			fmt.Println(server.Name, server.ID) // server.Name does not currently work, API may be broken
+			fmt.Println(server.Name, server.ID)
+			// server.Name does not currently work, API may be broken
 		}
 		fmt.Println(len(servers), "in total")
 	})
 
 	err = discord.Open()
 	fmt.Println(err)
+
 	return discord
 }
