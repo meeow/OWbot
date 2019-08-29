@@ -12,3 +12,7 @@ StatsKeys=[
     "competitiveStats.careerStats.allHeroes.game.gamesPlayed>Competitive Games Played",
     "competitiveStats.careerStats.allHeroes.game.gamesLost>Competitive Games Lost"
 ]
+ThirdPartyStatsPrefix="https://www.overbuff.com/players/pc/"
+ThirdPartyStatsSuffix="?mode=competitive"
+OWAPIPrefix = "https://ow-api.com/v1/stats/pc/us/"
+OWAPISuffix = "/complete"

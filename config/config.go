@@ -14,10 +14,14 @@ var (
 )
 
 type config struct {
-	BotPrefix     string
-	BotStatus     string
-	TokenFilePath string
-	StatsKeys     []string
+	BotPrefix             string
+	BotStatus             string
+	TokenFilePath         string
+	StatsKeys             []string
+	ThirdPartyStatsPrefix string
+	ThirdPartyStatsSuffix string
+	OWAPIPrefix           string
+	OWAPISuffix           string
 }
 
 // ReadConfig reads info from config file

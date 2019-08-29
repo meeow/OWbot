@@ -14,18 +14,13 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var (
-	owAPIprefix = "https://ow-api.com/v1/stats/pc/us/"
-	owAPIsuffix = "/complete"
-)
+var ()
 
 const (
 	minBtagLength = 7
 )
 
 func isValidBtag(btag string) bool {
-	//fmt.Println("Testing ", btag)
-
 	switch {
 	case !(strings.Contains(btag, "#") || strings.Contains(btag, "-")):
 		return false
@@ -33,7 +28,6 @@ func isValidBtag(btag string) bool {
 		return false
 	}
 
-	//fmt.Println(btag, "is valid!")
 	return true
 }
 
@@ -54,8 +48,8 @@ func urlFormatBtag(btag string) string {
 
 func getRawAccountStats(btag string, stats chan string) {
 	btag = urlFormatBtag(btag)
-	url := owAPIprefix + btag + owAPIsuffix
-	fmt.Printf("DEBUG: Fetching HTML code of %s ...\n", url)
+	url := config.Cfg.OWAPIPrefix + btag + config.Cfg.OWAPISuffix
+	//fmt.Printf("DEBUG: Fetching HTML code of %s ...\n", url)
 	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -68,7 +62,6 @@ func getRawAccountStats(btag string, stats chan string) {
 		panic(err)
 	}
 
-	//fmt.Printf("%s\n", html)
 	stats <- string(html)
 }
 
@@ -114,8 +107,10 @@ func GetEmbeddedStats(btags []string) *discordgo.MessageEmbed {
 	stats := ConcurrentGetRawAccountStats(btags)
 	prunedStats := pruneStats(stats[0])
 	playerInfo := prunedStats
-	//kw := "rating"
 
+	btag := fmt.Sprint(playerInfo["name"])
+	thirdPartyStatsPath := config.Cfg.ThirdPartyStatsPrefix + urlFormatBtag(btag) + config.Cfg.ThirdPartyStatsSuffix
+	iconPath := fmt.Sprint(playerInfo["icon"])
 	privateProfile := fmt.Sprint(playerInfo["private"])
 	thumbnailPath := fmt.Sprint(playerInfo["ratingIcon"])
 	if thumbnailPath == "" {
@@ -123,7 +118,7 @@ func GetEmbeddedStats(btags []string) *discordgo.MessageEmbed {
 	}
 
 	tempEmb := embed.NewEmbed().
-		SetTitle(fmt.Sprint(playerInfo["name"])).
+		SetAuthor(btag, iconPath, thirdPartyStatsPath).
 		SetColor(0x00ff00).
 		SetThumbnail(thumbnailPath)
 
