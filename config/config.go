@@ -18,10 +18,14 @@ type config struct {
 	BotStatus             string
 	TokenFilePath         string
 	StatsKeys             []string
+	HeroKeys              []string
+	HeroKeysPrefix        string
 	ThirdPartyStatsPrefix string
 	ThirdPartyStatsSuffix string
 	OWAPIPrefix           string
 	OWAPISuffix           string
+	OWAPIHeroesSuffix     string
+	HelpMessage           string
 }
 
 // ReadConfig reads info from config file

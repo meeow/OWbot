@@ -14,7 +14,11 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var ()
+var (
+	apiPrefix        = config.Cfg.OWAPIPrefix
+	apiDefaultSuffix = config.Cfg.OWAPISuffix
+	apiHeroesSuffix  = config.Cfg.OWAPIHeroesSuffix
+)
 
 const (
 	minBtagLength = 7
@@ -46,10 +50,19 @@ func urlFormatBtag(btag string) string {
 	return strings.Replace(btag, "#", "-", -1)
 }
 
-func getRawAccountStats(btag string, stats chan string) {
+//heroes can be list of multiple comma seperated heroes or just single hero
+func getRawAccountStats(btag string, stats chan string, heroes string) {
 	btag = urlFormatBtag(btag)
-	url := config.Cfg.OWAPIPrefix + btag + config.Cfg.OWAPISuffix
-	//fmt.Printf("DEBUG: Fetching HTML code of %s ...\n", url)
+	url := ""
+
+	if heroes == "" {
+		url = apiPrefix + btag + apiDefaultSuffix
+	} else {
+		url = apiPrefix + btag + apiHeroesSuffix + heroes
+		fmt.Println("HeroSuffix:", apiHeroesSuffix)
+		fmt.Println("URL:", url)
+	}
+
 	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -71,11 +84,18 @@ func ConcurrentGetRawAccountStats(btags []string) []string {
 	btags = filterInvalidBtags(btags)
 
 	stats := make(chan string)
-	//numBtags := len(btags)
 	var btagStats []string
 
 	for _, btag := range btags {
-		go getRawAccountStats(btag, stats)
+		arr := strings.Split(btag, ",")
+		tag := arr[0]
+
+		if len(arr) > 1 {
+			go getRawAccountStats(tag, stats, strings.Join(arr[1:], ","))
+		} else {
+			go getRawAccountStats(tag, stats, "")
+		}
+
 	}
 
 	// this may overflow if some provided btags are invalid
@@ -84,9 +104,7 @@ func ConcurrentGetRawAccountStats(btags []string) []string {
 		btagStats = append(btagStats, stat)
 	}
 
-	//fmt.Println(btagStats)
 	return btagStats
-
 }
 
 // Convert JSON response
@@ -101,9 +119,7 @@ func flattenStats(stats string) map[string]interface{} {
 // GetEmbeddedStats takes a string representing stats in flattened JSON
 // and returns an embed struct
 func GetEmbeddedStats(stats string) *discordgo.MessageEmbed {
-
 	playerInfo := flattenStats(stats)
-
 	btag := fmt.Sprint(playerInfo["name"])
 	thirdPartyStatsPath := config.Cfg.ThirdPartyStatsPrefix + urlFormatBtag(btag) + config.Cfg.ThirdPartyStatsSuffix
 	iconPath := fmt.Sprint(playerInfo["icon"])
@@ -123,13 +139,14 @@ func GetEmbeddedStats(stats string) *discordgo.MessageEmbed {
 		return tempEmb.Truncate().MessageEmbed
 	}
 
-	for _, k := range config.Cfg.StatsKeys {
+	for _, k := range append(config.Cfg.StatsKeys, config.Cfg.HeroKeys...) {
 		kTemp := strings.Split(k, ">")
 		key := kTemp[0]
 		formattedFieldName := kTemp[1]
 		value := fmt.Sprint(playerInfo[key])
+		fmt.Println(key)
 
-		if len(value) > 0 {
+		if len(value) > 0 && value != "<nil>" {
 			tempEmb = tempEmb.AddField(formattedFieldName, value)
 		}
 	}

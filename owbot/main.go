@@ -1,12 +1,14 @@
 package main
 
 import (
+	"../initapi"
 	"../initbot"
 )
 
 var ()
 
 func main() {
+	initapi.StartAllEndpoints()
 	discord := initbot.StartBot()
 
 	defer discord.Close()

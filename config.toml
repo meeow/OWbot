@@ -12,7 +12,36 @@ StatsKeys=[
     "competitiveStats.careerStats.allHeroes.game.gamesPlayed>Competitive Games Played",
     "competitiveStats.careerStats.allHeroes.game.gamesLost>Competitive Games Lost"
 ]
+HeroKeysPrefix="competitiveStats.careerStats."
+HeroKeys=[
+    "assists.healingDoneAvgPer10Min>Healing",
+    "assists.offensiveAssistsAvgPer10Min>Offensive Assists",
+    "assists.defensiveAssistsAvgPer10Min>Defensive Assists",
+    "average.allDamageDoneAvgPer10Min>All Damage",
+    "average.heroDamageDoneAvgPer10Min>Hero Damage",
+    "average.deathsAvgPer10Min>Deaths",
+    "average.finalBlowsAvgPer10Min>Final Blows",
+    "average.timeSpentOnFireAvgPer10Min>On Fire",
+    "heroSpecific.damageAmplifiedAvgPer10Min>Damage Amplified",
+    "heroSpecific.damageBlockedAvgPer10Min>Damage Blocked",
+    "game.timePlayed>Time Played",
+    "game.winPercentage>Win Percentage"
+]
+
 ThirdPartyStatsPrefix="https://www.overbuff.com/players/pc/"
 ThirdPartyStatsSuffix="?mode=competitive"
-OWAPIPrefix = "https://ow-api.com/v1/stats/pc/us/"
-OWAPISuffix = "/complete"
+OWAPIPrefix="https://ow-api.com/v1/stats/pc/us/"
+OWAPISuffix="/profile"
+# OWAPISuffix="/complete"
+OWAPIHeroesSuffix="/heroes/"
+
+
+# [ Help Message ]
+HelpMessage="""\n
+**OWbot Alpha** 
+github.com/meeow/OWbot 
+
+**Supported commands:** 
+- sr [btag1 btag2 ...btagN]
+- help
+""" 

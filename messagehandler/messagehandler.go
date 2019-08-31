@@ -34,7 +34,7 @@ func CommandHandler(session *discordgo.Session, message *discordgo.MessageCreate
 		return // The message does not invoke a bot action
 	}
 
-	outputMessage := ""
+	var outputMessages []string
 	var outputEmbeds []*discordgo.MessageEmbed
 	inputMessage := message.Content[len(config.Cfg.BotPrefix):]
 	inputMessageFields := strings.Fields(inputMessage)
@@ -51,10 +51,12 @@ func CommandHandler(session *discordgo.Session, message *discordgo.MessageCreate
 	case action == "sr":
 		btags := inputMessageFields[1:]
 		outputEmbeds = append(outputEmbeds, accountstats.GetAllEmbeddedStats(btags)...)
+	case action == "help":
+		outputMessages = append(outputMessages, config.Cfg.HelpMessage)
 	}
 
-	if outputMessage != "" {
-		session.ChannelMessageSend(channelID, outputMessage)
+	for _, msg := range outputMessages {
+		session.ChannelMessageSend(channelID, msg)
 	}
 
 	for _, emb := range outputEmbeds {
