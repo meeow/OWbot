@@ -1,0 +1,55 @@
+# [ OWbot Setup Configuration ]
+BotPrefix=":3"
+BotStatus="Nyaaa UwU"
+TokenFilePath="../bot_token"
+
+# [ Stats Lookup Preferences ]
+MetadataKeys=[
+    "name",
+    "rating",
+    "ratingIcon",
+    "private",
+    "icon"
+]
+StatsKeys=[
+    "rating>Skill Rating - Overall",
+    "ratings.0.level>Skill Rating - Tank",
+    "ratings.1.level>Skill Rating - Damage",
+    "ratings.2.level>Skill Rating - Support",
+    "competitiveStats.careerStats.allHeroes.game.gamesPlayed>Competitive Games Played",
+    "competitiveStats.careerStats.allHeroes.game.gamesLost>Competitive Games Lost"
+#    "competitiveStats.games.played",
+#    "competitiveStats.games.won"
+]
+HeroKeys=[
+    "competitiveStats.careerStats.%s.assists.healingDoneAvgPer10Min>Healing",
+    "competitiveStats.careerStats.%s.assists.offensiveAssistsAvgPer10Min>Offensive Assists",
+    "competitiveStats.careerStats.%s.assists.defensiveAssistsAvgPer10Min>Defensive Assists",
+    "competitiveStats.careerStats.%s.average.allDamageDoneAvgPer10Min>All Damage",
+    "competitiveStats.careerStats.%s.average.heroDamageDoneAvgPer10Min>Hero Damage",
+    "competitiveStats.careerStats.%s.average.deathsAvgPer10Min>Deaths",
+    "competitiveStats.careerStats.%s.average.finalBlowsAvgPer10Min>Final Blows",
+    "competitiveStats.careerStats.%s.average.timeSpentOnFireAvgPer10Min>On Fire",
+    "competitiveStats.careerStats.%s.heroSpecific.damageAmplifiedAvgPer10Min>Damage Amplified",
+    "competitiveStats.careerStats.%s.heroSpecific.damageBlockedAvgPer10Min>Damage Blocked",
+    "competitiveStats.careerStats.%s.game.timePlayed>Time Played",
+    "competitiveStats.careerStats.%s.game.winPercentage>Win Percentage"
+]
+
+ThirdPartyStatsPrefix="https://www.overbuff.com/players/pc/"
+ThirdPartyStatsSuffix="?mode=competitive"
+OWAPIPrefix="https://ow-api.com/v1/stats/pc/us/"
+OWAPISuffix="/profile"
+# OWAPISuffix="/complete"
+OWAPIHeroesSuffix="/heroes/"
+
+
+# [ Help Message ]
+HelpMessage="""\n
+**OWbot Alpha** 
+github.com/meeow/OWbot 
+
+**Supported commands:** 
+- sr [btag1 btag2 ...btagN]
+- help
+""" 
