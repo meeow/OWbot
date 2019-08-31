@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	testbtag = []string{"brokenglass-4115"}
+	testbtag = []string{"brokenglass-4115,orisa"}
 )
 
 func homePage(w http.ResponseWriter, r *http.Request) {

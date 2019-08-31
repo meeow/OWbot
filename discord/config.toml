@@ -4,6 +4,10 @@ BotStatus="Nyaaa UwU"
 TokenFilePath="../bot_token"
 
 # [ Stats Lookup Preferences ]
+MetadataKeys=[
+    
+]
+
 StatsKeys=[
     "rating>Skill Rating - Overall",
     "ratings.0.level>Skill Rating - Tank",
