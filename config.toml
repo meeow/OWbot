@@ -11,6 +11,10 @@ StatsKeys=[
     "ratings.2.level>Skill Rating - Support",
     "competitiveStats.careerStats.allHeroes.game.gamesPlayed>Competitive Games Played",
     "competitiveStats.careerStats.allHeroes.game.gamesLost>Competitive Games Lost"
+    	btag := fmt.Sprint(playerInfo["name"])
+	iconPath := fmt.Sprint(playerInfo["icon"])
+	privateProfile := fmt.Sprint(playerInfo["private"])
+	thumbnailPath := fmt.Sprint(playerInfo["ratingIcon"])
 ]
 HeroKeysPrefix="competitiveStats.careerStats."
 HeroKeys=[

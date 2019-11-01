@@ -18,6 +18,7 @@ var (
 	apiPrefix        = config.Cfg.OWAPIPrefix
 	apiDefaultSuffix = config.Cfg.OWAPISuffix
 	apiHeroesSuffix  = config.Cfg.OWAPIHeroesSuffix
+	embedColor       = 0x00ff00
 )
 
 const (
@@ -50,7 +51,7 @@ func urlFormatBtag(btag string) string {
 	return strings.Replace(btag, "#", "-", -1)
 }
 
-//heroes can be list of multiple comma seperated heroes or just single hero
+//@param heroes: comma seperated list
 func getRawAccountStats(btag string, stats chan string, heroes string) {
 	btag = urlFormatBtag(btag)
 	url := ""
@@ -78,42 +79,48 @@ func getRawAccountStats(btag string, stats chan string, heroes string) {
 	stats <- string(html)
 }
 
-// ConcurrentGetRawAccountStats takes an array of btag strings and
+// GetManyAccountStats takes an array of btag strings and
 // returns an array of JSON account info but without guaranteeing same order.
-func ConcurrentGetRawAccountStats(btags []string) []string {
+func GetManyAccountStats(btags []string) ([]string, []string) {
 	btags = filterInvalidBtags(btags)
-
 	stats := make(chan string)
 	var btagStats []string
+	var heroes []string
 
 	for _, btag := range btags {
 		arr := strings.Split(btag, ",")
 		tag := arr[0]
 
 		if len(arr) > 1 {
+			heroes = arr[1:]
 			go getRawAccountStats(tag, stats, strings.Join(arr[1:], ","))
 		} else {
 			go getRawAccountStats(tag, stats, "")
 		}
-
 	}
-
 	// this may overflow if some provided btags are invalid
 	for i := 0; i < len(btags); i++ {
 		stat := <-stats
 		btagStats = append(btagStats, stat)
 	}
-
-	return btagStats
+	return btagStats, heroes
 }
 
 // Convert JSON response
 func flattenStats(stats string) map[string]interface{} {
 	statsMap := crunchjson.JSONtoMap(stats)
-
 	flat, _ := flatten.Flatten(statsMap, "", flatten.DotStyle)
-
 	return flat
+}
+
+func filterKeys(playerInfo map[string]interface{}, heroes []string) map[string]interface{} {
+	var filteredKeys map[string]interface{}
+	
+	for _, key := append(config.Cfg.StatsKeys, config.Cfg.HeroKeys...) {
+		kTemp := strings.Split(k, ">")
+		keySubstring := kTemp[0]
+
+	}
 }
 
 // GetEmbeddedStats takes a string representing stats in flattened JSON
@@ -121,17 +128,17 @@ func flattenStats(stats string) map[string]interface{} {
 func GetEmbeddedStats(stats string) *discordgo.MessageEmbed {
 	playerInfo := flattenStats(stats)
 	btag := fmt.Sprint(playerInfo["name"])
-	thirdPartyStatsPath := config.Cfg.ThirdPartyStatsPrefix + urlFormatBtag(btag) + config.Cfg.ThirdPartyStatsSuffix
 	iconPath := fmt.Sprint(playerInfo["icon"])
 	privateProfile := fmt.Sprint(playerInfo["private"])
 	thumbnailPath := fmt.Sprint(playerInfo["ratingIcon"])
 	if thumbnailPath == "" {
 		thumbnailPath = fmt.Sprint(playerInfo["icon"])
 	}
+	thirdPartyStatsPath := config.Cfg.ThirdPartyStatsPrefix + urlFormatBtag(btag) + config.Cfg.ThirdPartyStatsSuffix
 
 	tempEmb := embed.NewEmbed().
 		SetAuthor(btag, iconPath, thirdPartyStatsPath).
-		SetColor(0x00ff00).
+		SetColor(embedColor).
 		SetThumbnail(thumbnailPath)
 
 	if privateProfile == "true" {
@@ -160,7 +167,7 @@ func GetEmbeddedStats(stats string) *discordgo.MessageEmbed {
 // returns an array of embeds
 func GetAllEmbeddedStats(btags []string) []*discordgo.MessageEmbed {
 	var embeds []*discordgo.MessageEmbed
-	stats := ConcurrentGetRawAccountStats(btags)
+	stats, heroes := GetManyAccountStats(btags)
 
 	for _, stat := range stats {
 		embeds = append(embeds, GetEmbeddedStats(stat))
